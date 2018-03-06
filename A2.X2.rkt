@@ -71,6 +71,7 @@
 
 (define (movq from to) (~a 'movq " " from   ", " to))
 (define (addq from to) (~a 'addq " " from   ", " to))
+(define (imulq from to) (~a 'imulq " " from ", " to))
 
 #| Integer Constants
    =================
@@ -207,6 +208,7 @@
    (popq temp)
     ; save caller context
    (pushq env)
+   (movq (★ temp 1) env)
    ; create callee context and nest under caller context
    (movq env (★ next)) (movq result (★ next 1))
    ; switch to callee context
@@ -280,7 +282,12 @@
 
 (define t1 '(L1: app (L1: λ 0 (L1: var 0)) (L1: datum 42)))
 
-(define t2 '(L1: app (L1: λ 1 (L1: app (L1: λ 0 (L1: var 0)) (L1: datum 42))) (L1: datum 1)))
+(define t2 '(L1: app (L1: λ 1 (L1: app (L1: λ 0 (L1: var 1)) (L1: datum 42))) (L1: datum 1)))
+
+(define t3 '(L1: app (L1: app (L1: var +) (L1: datum 40)) (L1: datum 2)))
+
+(define t4 '(L1: app (L1: app (L1: var *) (L1: datum -14)) (L1: datum -2)))
+
 
 #| Runtime Library
    =============== |#
@@ -298,6 +305,12 @@
   (check-equal? (L1→L2 '(L1: var +)) (compiled:L2
                                       '((L2: closure make_add))
                                       '())))
+
+(define make_add (labelled 'make_add (closure 'add) (retq)))
+(define add (labelled 'add (variable 1) (push_result) (variable 0) (list (popq temp) (addq temp result) (retq))))
+
+(define make_multiply (labelled 'make_multiply (closure 'multiply) (retq)))
+(define multiply (labelled 'multiply (variable 1) (push_result) (variable 0) (list (popq temp) (imulq temp result) (retq))))
 
 ; Put X2 versions of make_add and add in RTL below.
 ; Similarly, find the 64-bit x86 instruction for multiplication, and add multiplication.
@@ -365,4 +378,4 @@
 
 ; Put X2 versions of make_less_than and less_than in RTL below.
 
-(define RTL (list))
+(define RTL (list make_add add make_multiply multiply))
