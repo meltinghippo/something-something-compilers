@@ -290,13 +290,13 @@
 
 (define t5 '(L1: app
                  (L1: app
-                      (L1: var *)
+                      (L1: var +)
                       (L1: app (L1: var call/ec) (L1: λ 0 (L1: datum 2))))
-                 (L1: datum 20)))
+                 (L1: datum 40)))
 
 (define t6 '(L1: app
                  (L1: app
-                      (L1: var *)
+                      (L1: var +)
                       (L1: app (L1: var call/ec) (L1: λ 1
                                                       (L1: app
                                                            (L1: var 0)
@@ -364,8 +364,10 @@
 
 ; Put X2 versions of call_ec, make_ec, and ec in RTL below.
 
-(define ec (labelled 'ec (variable 1) (pushq result) (popq stack-pointer) (variable 0) (retq)))
-(define call_ec (labelled 'call_ec (push_result) (closure 'make_ec) (push_result) (pushq stack-pointer) (popq result) (call) (call) (retq)))
+; (call-with-output-file "./file.s" (lambda (out) (display (L2→X2 (L1→L2 t6)) out)) #:exists 'replace)
+
+(define ec (labelled 'ec (variable 1) (movq result stack-pointer) (variable 0) (retq)))
+(define call_ec (labelled 'call_ec (push_result) (closure 'make_ec) (push_result) (movq stack-pointer result) (call) (call) (retq)))
 (define make_ec (labelled 'make_ec (closure 'ec) (retq)))
 
 ; Booleans
@@ -400,4 +402,4 @@
 ; Put X2 versions of make_less_than and less_than in RTL below.
 
 ;(define RTL (list make_add add make_multiply multiply))
-(define RTL (list ec call_ec make_ec make_multiply multiply))
+(define RTL (list ec call_ec make_ec make_add add))
