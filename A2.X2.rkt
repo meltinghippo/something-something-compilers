@@ -347,6 +347,9 @@
 
 ; Put X2 versions of call_ec, make_ec, and ec in RTL below.
 
+(define call_ec (labelled 'call_ec (movq result temp) (closure 'make_ec) (pushq stack-pointer) (callq temp)))
+(define make_ec (labelled 'make_ec (popq stack-pointer) (variable 0) (movq temp result) (list (retq))))
+
 ; Booleans
 ; --------
 ; As mentioned earlier, we're representing false by the value 0.
@@ -378,4 +381,5 @@
 
 ; Put X2 versions of make_less_than and less_than in RTL below.
 
-(define RTL (list make_add add make_multiply multiply))
+;(define RTL (list make_add add make_multiply multiply))
+(define RTL (call_ec make_ec))
