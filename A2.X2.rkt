@@ -372,7 +372,7 @@
 (define (L1→X2/write-result e)
   (call-with-output-file "./file.s"
     (λ (out)
-      (displayln (L2→X2 (L1→L2 e)) out)) #:exists 'replace))
+      (for-each (λ (x) (display x out)) (L2→X2 (L1→L2 e)))) #:exists 'replace))
 
 ; (call-with-output-file "./file.s" (lambda (out) (display (L2→X2 (L1→L2 t6)) out)) #:exists 'replace)
 
