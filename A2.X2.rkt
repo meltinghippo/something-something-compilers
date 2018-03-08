@@ -305,6 +305,11 @@
                                                                 (L1: datum 42))))))
                  (L1: datum 20)))
 
+(define t7 '(L1: if 1
+                 (L1: app (L1: app (L1: var <) (L1: datum 4)) (L1: datum 3))
+                 (L1: datum 1)
+                 (L1: datum 0)))
+
 
 #| Runtime Library
    =============== |#
@@ -364,6 +369,11 @@
 
 ; Put X2 versions of call_ec, make_ec, and ec in RTL below.
 
+(define (L1→X2/write-result e)
+  (call-with-output-file "./file.s"
+    (λ (out)
+      (displayln (L2→X2 (L1→L2 e)) out)) #:exists 'replace))
+
 ; (call-with-output-file "./file.s" (lambda (out) (display (L2→X2 (L1→L2 t6)) out)) #:exists 'replace)
 
 (define ec (labelled 'ec (variable 1) (movq result stack-pointer) (variable 0) (retq)))
@@ -401,5 +411,21 @@
 
 ; Put X2 versions of make_less_than and less_than in RTL below.
 
+(define make_less_than
+  (labelled 'make_less_than
+            (closure 'less_than)
+            (retq)))
+
+(define less_than
+  (labelled 'less_than
+            (variable 0)
+            (pushq result)
+            (variable 1)
+            (popq temp)
+            (cmpq temp result)
+            (setl result-byte)
+            (movzbq result-byte result)
+            (retq)))
+
 ;(define RTL (list make_add add make_multiply multiply))
-(define RTL (list ec call_ec make_ec make_add add))
+(define RTL (list ec call_ec make_ec make_add add make_less_than less_than))
