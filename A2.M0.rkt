@@ -171,7 +171,8 @@
 ;  a function.
 
 (define-transformer T:let let
-  [e e])
+  [`(let ([,id ,init]) ,b ,bx ...) `((λ (,id) ,b ,@bx) ,init)]
+  [`(let ([,id ,init] ,rest ...) ,b ,bx ...) `((λ (,id) (let ,rest)) ,b ,@bx)])
 
 
 ; local
