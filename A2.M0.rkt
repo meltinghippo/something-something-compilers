@@ -16,7 +16,7 @@
 
 ; Compile an M0 expression to an L0 expression.
 (define (M0→L0 e)
-  (expand (standard-library e) Ts))
+  (expand e Ts))
 
 #| Language M0
    ===========
@@ -90,13 +90,18 @@
 ; Transform those directly to their L0 form.
 
 (define-transformer T:*id* *id*
-  [e e])
+  ['(*id* false) 0]
+  ['(*id* true) 1]
+  [`(*id* ,id) `(L0: var ,id)])
+
 (define-transformer T:*datum* *datum*
-  [e e])
+  [`(*datum* ,val) `(L0: datum ,val)])
+
 (define-transformer T:set! set!
-  [e e])
+  [`(set! ,id ,e) `(L0: set! ,id ,e)])
+
 (define-transformer T:if if
-  [e e])
+  [`(if ,bool ,e1 ,e2) `(L0: if ,bool ,e1, e2)])
 
 ; λ
 ; -
@@ -110,7 +115,10 @@
 ; Transform the unary single-body-expression form to the L0 form.
 
 (define-transformer T:λ λ
-  [e e])
+  [`(λ (,id) ,body) `(L0: λ (,id) ,body)]
+  [`(λ () ,body ...) `(λ (_) (block ,body))]
+  [`(λ (,id) ,body ...) `(λ (,id) (block ,body))]
+  [`(λ (,id1 ,id2 ...) ,body ...) `(λ (,id1) `(λ ,id2 ,@body))])
 
 
 ; *app*
@@ -121,7 +129,11 @@
 ; Transform the unary form to the L0 form.
 
 (define-transformer T:*app* *app*
-  [e e])
+  [`(*app* ,e1) `(L0: app ,e1 (block))]
+  [`(*app* ,e1 ,e2) `(L0: app ,e1 ,e2)]
+  [`(*app* ,e1 ,e2 ,e3 ...) `(L0: app ,e1 ,e2 (*app* ,@e3))]
+)
+
 
 
 ; block
@@ -141,7 +153,10 @@
 ;  the dummy value.
 
 (define-transformer T:block block
-  [e e])
+  ['(block) 0]
+  [`(block ,e) e]
+  [`(block ,e1 ,e2 ...) `(let ([_ ,e1]))]
+  )
 
 
 ; let
