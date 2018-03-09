@@ -154,10 +154,9 @@
 
 (define-transformer T:block block
   ['(block) 0]
-  [`(block ,e) e]
-  [`(block ,e1 ,e2 ...) `(let ([_ ,e1]))]
+  [`(block ,e) `(let ([r ,e]) r)]
+  [`(block ,e1 ,e2 ...) `(let ([x ,e1]) `(block ,@e2))]
   )
-
 
 ; let
 ; ---
