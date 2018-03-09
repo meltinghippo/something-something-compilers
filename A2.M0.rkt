@@ -172,7 +172,7 @@
 
 (define-transformer T:let let
   [`(let ([,id ,init]) ,b ,bx ...) `((λ (,id) ,b ,@bx) ,init)]
-  [`(let ([,id ,init] ,rest ...) ,b ,bx ...) `((λ (,id) (let ,rest)) ,b ,@bx)])
+  [`(let ([,id ,init] ,rest ...) ,b ,bx ...) `((λ (,id) (let ,rest ,b ,@bx)) ,init)])
 
 
 ; local
@@ -201,9 +201,12 @@
 ; Transform to ‘if’s or ‘cond’s.
 
 (define-transformer T:and and
-  [e e])
+  [`(and ,e1) `(if ,e1 true false)]
+  [`(and ,e1 ,e2 ,e3 ...) `(if ,e1 (and ,e2 ,@e3) false)])
+
 (define-transformer T:or or
-  [e e])
+  [`(or ,e1) `(if ,e1 true false)]
+  [`(or ,e1 ,e2 ,e3 ...) `(if ,e1 true (or ,e2 ,@e3))])
 
 
 ; cond
