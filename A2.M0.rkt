@@ -154,8 +154,8 @@
 
 (define-transformer T:block block
   ['(block) 0]
-  [`(block ,e) `(let ([r ,e]) r)]
-  [`(block ,e1 ,e2 ...) `(let ([x ,e1]) `(block ,@e2))]
+  [`(block ,e) e]
+  [`(block ,e1 ,e2 ...) `(let ([x ,e1]) (block ,@e2))]
   )
 
 ; let
@@ -171,7 +171,7 @@
 ;  a function.
 
 (define-transformer T:let let
-  [`(let ([,id ,init]) ,b ,bx ...) `((λ (,id) ,b ,@bx) ,init)]
+  [`(let ([,id ,init]) ,b ,bx ...) `((λ (,id) (block ,b ,@bx)) ,init)]
   [`(let ([,id ,init] ,rest ...) ,b ,bx ...) `((λ (,id) (let ,rest ,b ,@bx)) ,init)])
 
 
@@ -190,7 +190,10 @@
 ;  all the <f-id>s to dummy values, sets them to their functions, then evaluates the body.
 
 (define-transformer T:local local
-  [e e])
+  [`(local [(define (,f (,i ...)) ,fb ,fbx ...)] ,b ,bx ...)
+   `(let ([,f false]) (set! ,f (λ (,@i) ,fb ,@fbx)) ,b ,@bx)]
+  [`(local [(define (,f (,i ...)) ,fb ,fbx ...)] [,a ...] ... ,b ,bx ...)
+   `(let ([,f false]) (set! ,f (λ (,@i) ,fb ,@fbx)) (local ,@a ,b ,@bx))])
 
 
 ; and or
@@ -238,7 +241,7 @@
 ; If boolean <condition> is true evaluates the <body>s as a block, otherwise produces a dummy value.
 
 (define-transformer T:when when
-  [e e])
+  [`(when ,c ,b ,bx ...) `(if ,c (block ,b ,@bx) false)])
 
 
 ; while
@@ -250,7 +253,8 @@
 ; Transform to a recursive no-argument function that is immediately called.
 
 (define-transformer T:while while
-  [e e])
+  [`(while ,c ,b ,bx ...)
+   `(local [(define (loop ()) (when ,c ,b ,@bx (loop)))] (loop))])
 
 
 ; returnable breakable continuable
