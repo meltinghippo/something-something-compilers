@@ -305,14 +305,19 @@
            ; Boolean logic
            ; -------------
            ; (not b) : the negation of b, implemented with ‘if’
+           (define (not b) (if b false true))
            
            ; Arithmetic
            ; ----------
            ; (- a b) : the difference between a and b
            (define (- a b) (+ a (⊖ b)))
            ; (⊖ a) : the negative of a
+           (define (⊖ a) (* a -1))
            ; (> a b) : whether a is greater than b
+           (define (> a b) (< (- b a) 0))
            ; (>= a b) : whether a is greater than or equal to b
+           (define (>= a b) (not (< a b)))
            ; (= a b) : whether a is equal to b
+           (define (= a b) (and (not (< a b)) (not (> a b))))
            ]
      ,e))
