@@ -149,7 +149,7 @@
 ; Transform the form with more than one expression to a ‘let’ naming the first expression
 ;  with a dummy variable.
 ;
-; For other M0 forms that need dummy values [e.g. as mentioned for *app*], use (block) for
+; For other M0 forms that need bues [e.g. as mentioned for *app*], use (block) for
 ;  the dummy value.
 
 (define-transformer T:block block
@@ -200,9 +200,9 @@
 
 (define-transformer T:local local
   [`(local [(define (,f ,i ...) ,fb ,fbx ...)] ,b ,bx ...)
-   `(let ([,f false]) (set! ,f (λ (,@i) ,fb ,@fbx)) ,b ,@bx)]
+   `(let ([,f (block)]) (set! ,f (λ (,@i) ,fb ,@fbx)) ,b ,@bx)]
   [`(local [(define (,f ,i ...) ,fb ,fbx ...) ,a ...] ,b ,bx ...)
-   `(let ([,f false]) (set! ,f (λ (,@i) ,fb ,@fbx)) (local ,a ,b ,@bx))])
+   `(let ([,f (block)]) (set! ,f (λ (,@i) ,fb ,@fbx)) (local ,a ,b ,@bx))])
 
 
 ; and or
@@ -250,7 +250,7 @@
 ; If boolean <condition> is true evaluates the <body>s as a block, otherwise produces a dummy value.
 
 (define-transformer T:when when
-  [`(when ,c ,b ,bx ...) `(if ,c (block ,b ,@bx) false)])
+  [`(when ,c ,b ,bx ...) `(if ,c (block ,b ,@bx) (block))])
 
 
 ; while
