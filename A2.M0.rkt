@@ -263,7 +263,7 @@
 
 (define-transformer T:while while
   [`(while ,c ,b ,bx ...)
-   `(local [(define (loop ()) (when ,c ,b ,@bx (loop)))] (loop))])
+   `(local [(define (loop) (when ,c ,b ,@bx (loop)))] (loop))])
 
 
 ; returnable breakable continuable
