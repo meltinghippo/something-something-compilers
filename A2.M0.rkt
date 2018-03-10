@@ -16,7 +16,7 @@
 
 ; Compile an M0 expression to an L0 expression.
 (define (M0→L0 e)
-  (expand e Ts))
+  (expand (standard-library e) Ts))
 
 #| Language M0
    ===========
@@ -155,7 +155,7 @@
 (define-transformer T:block block
   ['(block) 0]
   [`(block ,e) e]
-  [`(block ,e1 ,e2 ...) `(let ([x ,e1]) (block ,@e2))]
+  [`(block ,e1 ,e2 ...) `(let ([_ ,e1]) (block ,@e2))]
   )
 
 ; let
@@ -177,6 +177,15 @@
 
 ; local
 ; -----
+; https://piazza.com/class/jc0rvqrdle431w?cid=56
+#;(local [(define (<f-id> <id> ...)
+            <f-body>
+            ...+)
+          ...+]
+    <body>
+    ...+)
+
+; The comment below is wrong according to Gary
 #;(local [(define (<f-id> (<id> ...))
             <f-body>
             ...+)
@@ -190,10 +199,10 @@
 ;  all the <f-id>s to dummy values, sets them to their functions, then evaluates the body.
 
 (define-transformer T:local local
-  [`(local [(define (,f (,i ...)) ,fb ,fbx ...)] ,b ,bx ...)
+  [`(local [(define (,f ,i ...) ,fb ,fbx ...)] ,b ,bx ...)
    `(let ([,f false]) (set! ,f (λ (,@i) ,fb ,@fbx)) ,b ,@bx)]
-  [`(local [(define (,f (,i ...)) ,fb ,fbx ...)] [,a ...] ... ,b ,bx ...)
-   `(let ([,f false]) (set! ,f (λ (,@i) ,fb ,@fbx)) (local ,@a ,b ,@bx))])
+  [`(local [(define (,f ,i ...) ,fb ,fbx ...) ,a ...] ,b ,bx ...)
+   `(let ([,f false]) (set! ,f (λ (,@i) ,fb ,@fbx)) (local ,a ,b ,@bx))])
 
 
 ; and or
