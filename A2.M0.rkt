@@ -225,7 +225,9 @@
 ; Transform using ‘if’s, ‘when’s, and/or ‘block’s.
 
 (define-transformer T:cond cond
-  [e e])
+  [`(cond [,c ,r] [else ,e ,ex ...]) `(if ,c (block ,r) (block ,e ,@ex))]
+  [`(cond [,c ,r] [,a ...] ... [else ,e ,ex ...])
+   `(if ,c (block ,r) (cond ,@a [else ,e ,@ex]))])
 
 
 ; when
