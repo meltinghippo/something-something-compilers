@@ -235,9 +235,9 @@
 ; Transform using ‘if’s, ‘when’s, and/or ‘block’s.
 
 (define-transformer T:cond cond
-  [`(cond [,c ,r] [else ,e ,ex ...]) `(if ,c (block ,r) (block ,e ,@ex))]
-  [`(cond [,c ,r] [,a ...] ... [else ,e ,ex ...])
-   `(if ,c (block ,r) (cond ,@a [else ,e ,@ex]))])
+  [`(cond [,c ,r ,rx ...] [else ,e ,ex ...]) `(if ,c (block ,r ,@rx) (block ,e ,@ex))]
+  [`(cond [,c ,r ,rx ...] [,a ...] ... [else ,e ,ex ...])
+   `(if ,c (block ,r ,@rx) (cond ,@a [else ,e ,@ex]))])
 
 
 ; when
@@ -277,12 +277,12 @@
 ; These are meant to be used manually by the programmer: around a function body, loop, or loop body,
 ;  to return early, break, or continue.
 
-(define-transformer T:returnable returnable
-  [`(returnable ,e1 ,ex ...) `(let ([return call-ec]) (block ,e1 ,@ex))])
+(define-transformer T:returnable returnable 
+  [`(returnable ,e1 ,ex ...) `(let ([return (block)]) (call/ec (λ (k) (set! return k) ,e1 ,@ex)))])
 (define-transformer T:breakable breakable
-  [`(breakable ,e1 ,ex ...) `(let ([break call-ec]) (block ,e1 ,@ex))])
+  [`(breakable ,e1 ,ex ...) `(let ([break (block)]) (call/ec (λ (k) (set! break k) ,e1 ,@ex)))])
 (define-transformer T:continuable continuable
-  [`(continuable ,e1 ,ex ...) `(let ([continue call-ec]) (block ,e1 ,@ex))])
+  [`(continuable ,e1 ,ex ...) `(let ([continue (block)]) (call/ec (λ (k) (set! continue k) ,e1 ,@ex)))])
 
 ; List of all the transformations.
 (define Ts (list T:*id* T:*datum*
