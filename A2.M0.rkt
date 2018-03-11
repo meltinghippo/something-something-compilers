@@ -115,10 +115,11 @@
 ; Transform the unary single-body-expression form to the L0 form.
 
 (define-transformer T:λ λ
-  [`(λ (,id) ,body) `(L0: λ (,id) ,body)]
-  [`(λ () ,body ...) `(λ (_) (block ,body))]
-  [`(λ (,id) ,body ...) `(λ (,id) (block ,body))]
-  [`(λ (,id1 ,id2 ...) ,body ...) `(λ (,id1) (λ ,id2 ,@body))])
+  [`(λ () ,b ,bx ...) `(L0: λ (_) (block ,b ,@bx))]
+  [`(λ (,id ,idx ...) ,b ,bx ...) `(L0: λ (,id) (λ (,@idx) ,b ,@bx))])
+  ;[`(λ (,id) ,body) `(L0: λ (,id) ,body)])
+  ;[`(λ (,id) ,body ...) `(λ (,id) (block ,body))]
+  ;[`(λ (,id1 ,id2 ...) ,body ...) `(λ (,id1) (λ ,id2 ,@body))])
 
 
 ; *app*
@@ -280,12 +281,11 @@
 ;  to return early, break, or continue.
 
 (define-transformer T:returnable returnable
-  [e e])
+  [`(returnable ,e1 ,ex ...) `(let ([return call-ec]) (block ,e1 ,@ex))])
 (define-transformer T:breakable breakable
-  [e e])
+  [`(breakable ,e1 ,ex ...) `(let ([break call-ec]) (block ,e1 ,@ex))])
 (define-transformer T:continuable continuable
-  [e e])
-
+  [`(continuable ,e1 ,ex ...) `(let ([continue call-ec]) (block ,e1 ,@ex))])
 
 ; List of all the transformations.
 (define Ts (list T:*id* T:*datum*
