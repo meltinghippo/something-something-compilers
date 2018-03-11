@@ -16,8 +16,8 @@
 
 ; Compile an M0 expression to an L0 expression.
 (define (M0→L0 e)
-  ;(expand e Ts))
-  (expand (standard-library e) Ts))
+  (expand e Ts))
+  ;(expand (standard-library e) Ts))
 
 #| Language M0
    ===========
@@ -134,7 +134,7 @@
 (define-transformer T:*app* *app*
   [`(*app* ,e1) `(L0: app ,e1 (block))]
   [`(*app* ,e1 ,e2) `(L0: app ,e1 ,e2)]
-  [`(*app* ,e1 ,ex ...) `(L0: app ,e1 (*app* ,@ex))]
+  [`(*app* ,e1 ,e2 ,ex ...) `(*app* (L0: app ,e1 ,e2) ,@ex)]
 )
 
 
