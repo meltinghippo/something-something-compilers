@@ -4,6 +4,8 @@
          Mac? heap-size postamble)
 
 (require "A2.L2.rkt")
+(require "A2.L1.rkt")
+(require "A2.M0.rkt")
 
 (module+ test (require rackunit))
 
@@ -368,6 +370,11 @@
                                             '())))
 
 ; Put X2 versions of call_ec, make_ec, and ec in RTL below.
+
+(define (M0→X2/write-result e)
+  (call-with-output-file "./file.s"
+    (λ (out)
+      (for-each (λ (x) (display x out)) (L2→X2 (L1→L2 (L0→L1 (M0→L0 e)))))) #:exists 'replace))
 
 (define (L1→X2/write-result e)
   (call-with-output-file "./file.s"

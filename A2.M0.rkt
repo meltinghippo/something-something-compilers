@@ -16,6 +16,7 @@
 
 ; Compile an M0 expression to an L0 expression.
 (define (M0→L0 e)
+  ;(expand e Ts))
   (expand (standard-library e) Ts))
 
 #| Language M0
@@ -116,6 +117,7 @@
 
 (define-transformer T:λ λ
   [`(λ () ,b ,bx ...) `(L0: λ (_) (block ,b ,@bx))]
+  [`(λ (,id) ,b ,bx ...) `(L0: λ (,id) (block ,b ,@bx))]
   [`(λ (,id ,idx ...) ,b ,bx ...) `(L0: λ (,id) (λ (,@idx) ,b ,@bx))])
   ;[`(λ (,id) ,body) `(L0: λ (,id) ,body)])
   ;[`(λ (,id) ,body ...) `(λ (,id) (block ,body))]
