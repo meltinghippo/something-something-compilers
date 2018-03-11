@@ -119,10 +119,6 @@
   [`(λ () ,b ,bx ...) `(L0: λ (_) (block ,b ,@bx))]
   [`(λ (,id) ,b ,bx ...) `(L0: λ (,id) (block ,b ,@bx))]
   [`(λ (,id ,idx ...) ,b ,bx ...) `(L0: λ (,id) (λ (,@idx) ,b ,@bx))])
-  ;[`(λ (,id) ,body) `(L0: λ (,id) ,body)])
-  ;[`(λ (,id) ,body ...) `(λ (,id) (block ,body))]
-  ;[`(λ (,id1 ,id2 ...) ,body ...) `(λ (,id1) (λ ,id2 ,@body))])
-
 
 ; *app*
 ; -----
@@ -134,8 +130,7 @@
 (define-transformer T:*app* *app*
   [`(*app* ,e1) `(L0: app ,e1 (block))]
   [`(*app* ,e1 ,e2) `(L0: app ,e1 ,e2)]
-  [`(*app* ,e1 ,e2 ,ex ...) `(*app* (L0: app ,e1 ,e2) ,@ex)]
-)
+  [`(*app* ,e1 ,e2 ,ex ...) `(*app* (L0: app ,e1 ,e2) ,@ex)])
 
 
 
