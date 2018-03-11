@@ -412,7 +412,7 @@
         (setl result-byte)
         (movzbq result-byte result))
 
-(define (setl to) (~a 'setb  " " to))
+(define (setl to) (~a 'setl  " " to))
 (define result-byte (register 'cl))
 (define (movzbq from-1 from-2) (~a 'movzbq " " from-1 ", " from-2))
 
@@ -434,5 +434,7 @@
             (movzbq result-byte result)
             (retq)))
 
-;(define RTL (list make_add add make_multiply multiply))
-(define RTL (list ec call_ec make_ec make_add add make_less_than less_than))
+(define RTL (list ec call_ec make_ec
+                  make_add add
+                  make_less_than less_than
+                  make_multiply multiply))

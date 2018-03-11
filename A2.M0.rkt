@@ -16,8 +16,8 @@
 
 ; Compile an M0 expression to an L0 expression.
 (define (M0→L0 e)
-  (expand e Ts))
-  ;(expand (standard-library e) Ts))
+  ;(expand e Ts))
+  (expand (standard-library e) Ts))
 
 #| Language M0
    ===========
@@ -199,8 +199,8 @@
 (define-transformer T:local local
   [`(local [(define (,f ,i ...) ,fb ,fbx ...)] ,b ,bx ...)
    `(let ([,f (block)]) (set! ,f (λ (,@i) ,fb ,@fbx)) ,b ,@bx)]
-  [`(local [(define (,f ,i ...) ,fb ,fbx ...) ,a ...] ,b ,bx ...)
-   `(let ([,f (block)]) (set! ,f (λ (,@i) ,fb ,@fbx)) (local ,a ,b ,@bx))])
+  [`(local [(define (,f ,i ...) ,fb ,fbx ...) ,a ...] ,b ,bx ...)    
+   `(let ([,f (block)]) (local ,a (set! ,f (λ (,@i) ,fb ,@fbx)) ,b ,@bx))])
 
 
 ; and or
@@ -306,9 +306,9 @@
            
            ; Arithmetic
            ; ----------
-           ; (- a b) : the difference between a and b
+           ; (- a b) : the difference between a and b          
            (define (- a b) (+ a (⊖ b)))
-           ; (⊖ a) : the negative of a
+           ;(⊖ a) : the negative of a
            (define (⊖ a) (* a -1))
            ; (> a b) : whether a is greater than b
            (define (> a b) (< (- b a) 0))
